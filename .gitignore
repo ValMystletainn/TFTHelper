@@ -50,3 +50,9 @@ compile_commands.json
 
 # QtCreator local machine specific files for imported projects
 *creator.user*
+
+# doc figure
+!/doc/figure/runtimeEn.jpg
+!/doc/figure/runtimeZh.png
+/doc/figure/*
+
