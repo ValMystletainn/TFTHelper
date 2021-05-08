@@ -52,7 +52,7 @@ compile_commands.json
 *creator.user*
 
 # doc figure
+/doc/figure/*
 !/doc/figure/runtimeEn.jpg
 !/doc/figure/runtimeZh.png
-/doc/figure/*
 
