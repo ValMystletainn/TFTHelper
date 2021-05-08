@@ -56,3 +56,7 @@ compile_commands.json
 !/doc/figure/runtimeEn.jpg
 !/doc/figure/runtimeZh.png
 
+/doc/*
+!/doc/draft_en.pdf
+!/doc/草稿.pdf
+
