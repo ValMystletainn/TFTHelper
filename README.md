@@ -10,8 +10,8 @@
 ### 普通版本
 [下载](https://github.com/MapleHock/TFTHelper/releases/tag/0.1)，支持64位Windows7及以上系统。下载解压后用记事本打开./setting文件夹下的setting.ini文件，写入"tfthelper_zh_CN.qm"，指明所需加载的翻译文件，然后启动即可。
 
-使用时选择感兴趣的输出模式，输入相关参数即可计算。
-![image](https://github.com/MapleHock/TFTHelper/blob/master/doc/figure/runtimeZh.png)
+使用时选择感兴趣的输出模式，输入相关参数即可计算。下图计算在7级抽4费卡，且已经抽出2张目标卡，3张其他同费卡的情况下，抽卡2次得到的目标卡张数的分布的例子。
+![image](https://raw.githubusercontent.com/MapleHock/TFTHelper/master/doc/figure/runtimeZh.png)
 
 ### 命令行工具版本
 下载./cli目录下的python脚本直接使用，或下载cpp文件自行编译后使用。
@@ -40,9 +40,11 @@ This is an application that help you handle the probability of each situation in
 ### normal version
 
 [Download](https://github.com/MapleHock/TFTHelper/releases/tag/0.1)，only for 64bits Windows7/8/10 system now.
-![image](https://github.com/MapleHock/TFTHelper/blob/master/doc/figure/runtimeEn.jpg)
 
-Switch to the output random variable you want, fill the input parameters and run.
+Switch to the output random variable you want, fill the input parameters and run. Here is an example for how to get the distribution of how many target cards(Tier4) we get by rolling 2 times at lv7 with 2 of the target cards and 3 of other cards in the same tier have been drawn out.
+
+![image](https://raw.githubusercontent.com/MapleHock/TFTHelper/master/doc/figure/runtimeEn.jpg)
+
 
 ### CLI version
 Download the files in ./cli. There are python script and cpp source code for you. The are the same cli programme. The python script can be directly used, while the cpp one show be complied by yourself first.
