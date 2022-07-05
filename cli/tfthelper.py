@@ -1,19 +1,22 @@
 import sys
+from typing import List, Optional
 import numpy as np
 from scipy.stats import binom
 from scipy.stats import hypergeom
 
 
 probMatrix = np.array(
-[[1.0,  0,    0,    0,    0],
-    [1.0,  0,    0,    0,    0],
-    [0.75, 0.25, 0,    0,    0],
+[   [1.0,  0,    0,    0,    0],        #1
+    [1.0,  0,    0,    0,    0],        #2
+    [0.75, 0.25, 0,    0,    0],        # lv3
     [0.55, 0.30, 0.15, 0,    0],
     [0.45, 0.33, 0.20, 0.02, 0],
     [0.35, 0.35, 0.25, 0.05, 0],
     [0.19, 0.35, 0.30, 0.15, 0.01],
-    [0.10, 0.25, 0.35, 0.25, 0.05],
-    [0.10, 0.15, 0.30, 0.30, 0.15]]
+    [0.16, 0.20, 0.35, 0.25, 0.04],    # lv8
+    [0.09, 0.15, 0.30, 0.30, 0.16],
+    [0.05, 0.10, 0.20, 0.40, 0.25],
+    [0.01, 0.02, 0.12, 0.50, 0.35]]
 )
 
 poolSize = [29, 22, 18, 12, 10]
@@ -126,13 +129,59 @@ def PrintRollingProbTable():
 
     print('')
 
+def get_gold_for_given_win_loss(start_gold:int,
+                                win_loss_records:List[str],
+                                current_win_streak:int=0,
+                                pve_at:Optional[List[int]]=None,
+                                max_interest:int=5) -> int:
+    current_gold = start_gold
+    if pve_at is None:
+        for i in range(5, len(win_loss_records) + 1):
+            win_loss_records.insert(i, 'pve')
+    else:
+        for i in pve_at:
+            win_loss_records.insert(i, 'pve')
+
+    for round_record in win_loss_records:
+        interset = current_gold // 10
+        interset = min(interset, max_interest)
+        win_reward = 0
+        streak_reward = 0
+        natural_income = 5
+        if round_record == 'win':
+            win_reward = 1
+            if current_win_streak >=0:
+                current_win_streak += 1
+                streak_reward = {0:0, 1:0, 2:1, 3:1, 4:2}.get(current_win_streak, 3)
+            else:
+                current_win_streak = 0
+                streak_reward = 0
+        elif round_record == 'loss':
+            win_reward = 0
+            if current_win_streak <= 0:
+                current_win_streak -= 1
+                streak_reward = {0:0, -1:0, -2:1, -3:1, -4:2}.get(current_win_streak, 3)
+            else:
+                current_win_streak = 0
+                streak_reward = 0
+        elif round_record == 'pve':
+            win_reward = 0
+            streak_reward = {0:0, -1:0, -2:1, -3:1, -4:2, 1:0, 2:1, 3:1, 4:2}.get(current_win_streak, 3)
+
+        current_gold += natural_income + interset + win_reward + streak_reward
+
+    return current_gold
+
 if __name__ == '__main__':
     if(len(sys.argv) == 1):
         print('no more input arguments, please use -h or --help subcommand to get help')
         sys.exit(0)
 
     if (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
-        print('usage:\n1. tfthelper -r \t to show rolling prob table at each level\n2. tfthelper -d <Lv> <target tier> <numRolling> [#target drawn (Default 0)] [#other same tier cards drawn(Default 0)] \t return the distribution and statistics of the number of target you get(given rolling time)\n3.tfthelper -s <Lv> <target tier> <Count for Stopping> [#target drawn(Default 0)] [#other same tier cards drawn(Default 0)]\t return the distribution and statistics of the number of rolling(given the target counts of stopping)')
+        print('usage:\n'
+              '1. tfthelper -r \t to show rolling prob table at each level\n'
+              '2. tfthelper -d <Lv> <target tier> <numRolling> [#target drawn (Default 0)] [#other same tier cards drawn(Default 0)] \t return the distribution and statistics of the number of target you get(given rolling time)\n'
+              '3. tfthelper -s <Lv> <target tier> <Count for Stopping> [#target drawn(Default 0)] [#other same tier cards drawn(Default 0)]\t return the distribution and statistics of the number of rolling(given the target counts of stopping)')
         sys.exit(0)
 
     if (sys.argv[1] == '-r' or sys.argv[1] == '--rtable'):
@@ -141,18 +190,27 @@ if __name__ == '__main__':
 
     if (sys.argv[1] == '-d' or sys.argv[1] == '--drawout'):
         arg = [0, 0, 0, 0, 0]
-        for i in range(len(sys.argv) - 2):
-            arg[i] = int(sys.argv[i + 2])
+        arg = list(map(int, sys.argv[2:]))
 
-        targetDrawPDFArray = GetCardDrawnPDFArray(arg[0], arg[1], arg[2], arg[3], arg[4])
+        targetDrawPDFArray = GetCardDrawnPDFArray(*arg)
         PrintDistribution(targetDrawPDFArray)
         sys.exit(0)
 
     if (sys.argv[1] == '-s' or sys.argv[1] == '--stoptime'):
         arg = [0, 0, 0, 0, 0]
-        for i in range(len(sys.argv) - 2):
-            arg[i] = int(sys.argv[i + 2])
-        stoptimePDFArray = GetStopTimePDFArray(arg[0], arg[1], arg[2], arg[3], arg[4])
+        arg = list(map(int, sys.argv[2:]))
+        stoptimePDFArray = GetStopTimePDFArray(*arg)
         PrintDistribution(stoptimePDFArray)
         sys.exit(0)
 
+    if (sys.argv[1] == '-g' or sys.argv[1] == '--gold'):
+        arg = sys.argv[2:]
+        arg = [eval(ar) for ar in arg]
+        # def get_gold_for_given_win_loss(start_gold:int,
+        #                         win_loss_records:List[str],
+        #                         current_win_streak:int=0,
+        #                         pve_at:Optional[List[int]]=None,
+        #                         max_interest:int=5) -> int:
+        current_gold = get_gold_for_given_win_loss(*arg)
+        print(f'gold gain = {current_gold - arg[0]}')
+        sys.exit(0)
